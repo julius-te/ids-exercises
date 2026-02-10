@@ -1,83 +1,83 @@
 
-- [ ] Normalization
-  - [ ] Min-Max
-  - [ ] Standard Score
-  - [ ] Decimal Scaling
-- [ ] Binning
-  - [ ] Equal-width
-  - [ ] Equal-frequency
-- [ ] Boxplots
-  - [ ] Draw from data: 1st, 3rd quartile, IQR, lower and upper fence
-- [ ] Decision Trees
-  - [ ] ID3 with Information Gain
-  - [ ] ID3 with Gain Ratio
-  - [ ] ID3 with Gini
-  - [ ] ID3 with numeric descriptive feature
-  - [ ] ID3 with numeric target feature
-  - [ ] Discrimination-aware Decision trees
-- [ ] Regression
-  - [ ] One step of gradient descent with MSE and multiple inputs and single output
-- [ ] SVM
-  - [ ] Sketch 2D linear functions (where f(x1, x2) = 0)
-  - [ ] Evaluate whether a 2D linear function describe an SVM without soft margins or regularization
-  - [ ] Formulate optimization problem for data set without soft margins
-  - [ ] Formulate optimization problem for data set with soft margins and regularization
-  - [ ] Provide decision boundary for a given small data set
-- [ ] Naive Bayes
-  - [ ] Given data set, predict probability of some instance
-- [ ] Neural Networks (number of nodes: 3)
-  - [ ] Compute output
-  - [ ] Apply backpropagation
-- [ ] Confusion Matrix
-  - [ ] Compute confusion matrix given dataset and predictions
-  - [ ] Given confusion matrix, compute precision, recall, accuracy, F1-measure
-  - [ ] Given confusion matrix, compute confusion matrix for multinomial targets, compute precision and recall
-  - [ ] Given confusion matrix, compute average class acccuracy and average class accuracyHM
-- [ ] ROC
-  - [ ] Plot ROC curve
-  - [ ] Compute AUC
-- [ ] Continuous Target Features
-  - [ ] sum of squared errors
-  - [ ] mean squared error
-  - [ ] root mean squared error
-  - [ ] mean absolute error
-  - [ ] R² coefficient
-- [ ] Clustering
-  - [ ] k-means
-  - [ ] k-medoids
-  - [ ] Agglomerative clustering with minimum or maximum distance as linkage measure
-- [ ] Frequest Item Sets
-  - [ ] Apriori algorithm
-  - [ ] FP-Growth
-  - [ ] Discriminatory Itemsets: Is an itemset k-discriminatory
-- [ ] Association Rules
-  - [ ] Compute support, confidence, lift
-  - [ ] Relationship between confidence, lift and support for combinations of unknown sets A, B, C
-- [ ] Sequence Mining
-  - [ ] support, confidence, lift
-  - [ ] describe a sequence as a set of litemsets
-  - [ ] AprioriAll algorithm
-- [ ] Process Mining
-  - [ ] Find all traces of a petri net
-  - [ ] Create a petri for given traces
-  - [ ] Translate process tree into petri net
-  - [ ] Translate petri net into process tree
-  - [ ] Discover process tree using inductive miner (no fallthroughs, just sequence, parallel, xor, and loop cuts)
-  - [ ] Compute token-based replay fitness
-- [ ] Text Mining
-  - [ ] tf-idf
-  - [ ] bag-of-words for document similarity
-  - [ ] n-grams
-  - [ ] k-skip n-grams
-- [ ] Autocorrelation
-  - [ ] calculate autocorrelation coefficient
-  - [ ] draw ACF plot
-  - [ ] calc moving average
-- [ ] Forecasting
-  - [ ] calculate forecasts and errors (MAE or RMSE) of AR model
-  - [ ] calculate forecasts and errors (MAE or RMSE) of MA model
-  - [ ] ARIMA
-  - [ ] ARMA
-- [ ] Streaming k-means
-- [ ] Confidentiality
-  - [ ] Anonymize dataset to k-anonymity and l-diversity
+- [x] Normalization
+  - [x] Min-Max
+  - [x] Standard Score
+  - [x] Decimal Scaling
+- [x] Binning
+  - [x] Equal-width
+  - [x] Equal-frequency
+- [x] Boxplots
+  - [x] Draw from data: 1st, 3rd quartile, IQR, lower and upper fence
+- [x] Decision Trees
+  - [x] ID3 with Information Gain
+  - [x] ID3 with Gain Ratio
+  - [x] ID3 with Gini
+  - [x] ID3 with numeric descriptive feature
+  - [x] ID3 with numeric target feature
+  - [x] Discrimination-aware Decision trees
+- [x] Regression
+  - [x] One step of gradient descent with MSE and multiple inputs and single output
+- [x] SVM
+  - [x] Sketch 2D linear functions (where f(x1, x2) = 0)
+  - [x] Evaluate whether a 2D linear function describe an SVM without soft margins or regularization
+  - [x] Formulate optimization problem for data set without soft margins
+  - [x] Formulate optimization problem for data set with soft margins and regularization
+  - [x] Provide decision boundary for a given small data set
+- [x] Naive Bayes
+  - [x] Given data set, predict probability of some instance
+- [x] Neural Networks (number of nodes: 3)
+  - [x] Compute output
+  - [x] Apply backpropagation
+- [x] Confusion Matrix
+  - [x] Compute confusion matrix given dataset and predictions
+  - [x] Given confusion matrix, compute precision, recall, accuracy, F1-measure
+  - [x] Given confusion matrix, compute confusion matrix for multinomial targets, compute precision and recall
+  - [x] Given confusion matrix, compute average class acccuracy and average class accuracyHM
+- [x] ROC
+  - [x] Plot ROC curve
+  - [x] Compute AUC
+- [x] Continuous Target Features
+  - [x] sum of squared errors
+  - [x] mean squared error
+  - [x] root mean squared error
+  - [x] mean absolute error
+  - [x] R² coefficient
+- [x] Clustering
+  - [x] k-means
+  - [x] k-medoids
+  - [x] Agglomerative clustering with minimum or maximum distance as linkage measure
+- [x] Frequest Item Sets
+  - [x] Apriori algorithm
+  - [x] FP-Growth
+  - [x] Discriminatory Itemsets: Is an itemset k-discriminatory
+- [x] Association Rules
+  - [x] Compute support, confidence, lift
+  - [x] Relationship between confidence, lift and support for combinations of unknown sets A, B, C
+- [x] Sequence Mining
+  - [x] support, confidence, lift
+  - [x] describe a sequence as a set of litemsets
+  - [x] AprioriAll algorithm
+- [x] Process Mining
+  - [x] Find all traces of a petri net
+  - [x] Create a petri for given traces
+  - [x] Translate process tree into petri net
+  - [x] Translate petri net into process tree
+  - [x] Discover process tree using inductive miner (no fallthroughs, just sequence, parallel, xor, and loop cuts)
+  - [x] Compute token-based replay fitness
+- [x] Text Mining
+  - [x] tf-idf
+  - [x] bag-of-words for document similarity
+  - [x] n-grams
+  - [x] k-skip n-grams
+- [x] Autocorrelation
+  - [x] calculate autocorrelation coefficient
+  - [x] draw ACF plot
+  - [x] calc moving average
+- [x] Forecasting
+  - [x] calculate forecasts and errors (MAE or RMSE) of AR model
+  - [x] calculate forecasts and errors (MAE or RMSE) of MA model
+  - [x] ARIMA
+  - [x] ARMA
+- [x] Streaming k-means
+- [x] Confidentiality
+  - [x] Anonymize dataset to k-anonymity and l-diversity
