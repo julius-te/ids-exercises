@@ -6,6 +6,7 @@ function seededRandom(seed) {
 }
 
 export function ComputeMetrics({ showSolution, seed }) {
+  const plotId = React.useId();
   let rng = () => { seed++; return seededRandom(seed); };
   
   const predictions = [];
@@ -30,6 +31,26 @@ export function ComputeMetrics({ showSolution, seed }) {
   const recall = tp / (tp + fn);
   const accuracy = (tp + tn) / (tp + tn + fp + fn);
   const f1 = 2 * (precision * recall) / (precision + recall);
+  
+  React.useEffect(() => {
+    if (showSolution) {
+      Plotly.newPlot(plotId, [{
+        z: [[tp, fn], [fp, tn]],
+        x: ['Predicted Positive', 'Predicted Negative'],
+        y: ['Actual Positive', 'Actual Negative'],
+        type: 'heatmap',
+        colorscale: 'Blues',
+        showscale: true,
+        text: [[`TP: ${tp}`, `FN: ${fn}`], [`FP: ${fp}`, `TN: ${tn}`]],
+        texttemplate: '%{text}',
+        textfont: { size: 16 }
+      }], {
+        title: 'Confusion Matrix',
+        xaxis: { side: 'top' },
+        yaxis: { autorange: 'reversed' }
+      }, { responsive: true });
+    }
+  }, [showSolution, plotId]);
   
   return h('div', { className: 'space-y-4' },
     h('div', null,
@@ -56,6 +77,7 @@ export function ComputeMetrics({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { id: plotId, className: 'mb-4', style: { width: '100%', height: '400px' } }),
       h('div', { className: 'space-y-4' },
         h('div', null,
           h('p', { className: 'font-semibold mb-2' }, 'Confusion Matrix:'),

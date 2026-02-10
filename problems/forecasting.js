@@ -6,6 +6,8 @@ function seededRandom(seed) {
 }
 
 export function ArModel({ showSolution, seed }) {
+  const chartRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
   let rng = () => { seed++; return seededRandom(seed); };
   
   const n = 8;
@@ -22,6 +24,58 @@ export function ArModel({ showSolution, seed }) {
   const actualNext = Math.floor(rng() * 10) + 10;
   const error = Math.abs(forecast - actualNext);
   
+  React.useEffect(() => {
+    if (showSolution && canvasRef.current) {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+      
+      const ctx = canvasRef.current.getContext('2d');
+      chartRef.current = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [...series.map((_, i) => `t-${n-i}`), 't', 't+1'],
+          datasets: [{
+            label: 'Actual',
+            data: [...series, actualNext, null],
+            borderColor: '#3B82F6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            pointRadius: 5
+          }, {
+            label: 'Forecast',
+            data: [...Array(n).fill(null), forecast, forecast],
+            borderColor: '#EF4444',
+            borderDash: [5, 5],
+            pointRadius: 5,
+            pointStyle: 'star'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'AR(1) Time Series Forecast'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }
+    
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+    };
+  }, [showSolution]);
+  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -34,6 +88,9 @@ export function ArModel({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { className: 'mb-4', style: { height: '300px' } },
+        h('canvas', { ref: canvasRef })
+      ),
       h('div', { className: 'space-y-2' },
         h('p', { className: 'font-semibold' }, 'Step 1: Calculate forecast'),
         h('p', null, `Forecast = ${c} + ${phi.toFixed(3)} × ${series[series.length - 1]}`),

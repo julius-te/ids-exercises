@@ -6,6 +6,8 @@ function seededRandom(seed) {
 }
 
 export function MinMax({ showSolution, seed }) {
+  const chartRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
   let rng = () => { seed++; return seededRandom(seed); };
   
   const values = [];
@@ -22,6 +24,72 @@ export function MinMax({ showSolution, seed }) {
     newMin + ((v - min) / (max - min)) * (newMax - newMin)
   );
   
+  React.useEffect(() => {
+    if (showSolution && canvasRef.current) {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+      
+      const ctx = canvasRef.current.getContext('2d');
+      chartRef.current = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: values.map((_, i) => `V${i+1}`),
+          datasets: [{
+            label: 'Original',
+            data: values,
+            borderColor: '#3B82F6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            yAxisID: 'y'
+          }, {
+            label: 'Normalized',
+            data: normalized,
+            borderColor: '#EF4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            yAxisID: 'y1'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Min-Max Normalization'
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: { display: true, text: 'Original' }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              title: { display: true, text: 'Normalized' },
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
+    }
+    
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+    };
+  }, [showSolution]);
+  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -32,6 +100,9 @@ export function MinMax({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { className: 'mb-4', style: { height: '300px' } },
+        h('canvas', { ref: canvasRef })
+      ),
       h('div', { className: 'space-y-2' },
         h('p', null, `Min = ${min}, Max = ${max}`),
         h('p', null, `Formula: newValue = newMin + ((value - min) / (max - min)) × (newMax - newMin)`),

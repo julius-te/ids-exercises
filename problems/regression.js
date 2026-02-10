@@ -6,6 +6,8 @@ function seededRandom(seed) {
 }
 
 export function GradientDescent({ showSolution, seed }) {
+  const chartRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
   let rng = () => { seed++; return seededRandom(seed); };
   
   const learningRate = (Math.floor(rng() * 3) + 1) * 0.1;
@@ -29,6 +31,50 @@ export function GradientDescent({ showSolution, seed }) {
   const newWeights = weights.map((w, i) => w - learningRate * 2 * error * inputs[i]);
   const newBias = bias - learningRate * 2 * error;
   
+  const newPrediction = inputs.reduce((sum, x, i) => sum + x * newWeights[i], newBias);
+  
+  React.useEffect(() => {
+    if (showSolution && canvasRef.current) {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+      
+      const ctx = canvasRef.current.getContext('2d');
+      chartRef.current = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Target', 'Old Prediction', 'New Prediction'],
+          datasets: [{
+            label: 'Values',
+            data: [target, prediction, newPrediction],
+            backgroundColor: ['#10B981', '#EF4444', '#3B82F6']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Prediction Improvement After Gradient Descent'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }
+    
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+    };
+  }, [showSolution]);
+  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -43,6 +89,9 @@ export function GradientDescent({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { className: 'mb-4', style: { height: '300px' } },
+        h('canvas', { ref: canvasRef })
+      ),
       h('div', { className: 'space-y-2' },
         h('p', { className: 'font-semibold' }, 'Step 1: Calculate prediction'),
         h('p', null, `ŷ = ${bias.toFixed(2)} + ${weights.map((w, i) => `${w.toFixed(2)}×${inputs[i]}`).join(' + ')}`),
@@ -58,7 +107,8 @@ export function GradientDescent({ showSolution, seed }) {
         h('div', { className: 'bg-green-50 p-4 rounded mt-4' },
           h('div', { className: 'font-semibold mb-2' }, 'New parameters:'),
           h('p', null, `w = [${newWeights.map(w => w.toFixed(3)).join(', ')}]`),
-          h('p', null, `b = ${newBias.toFixed(3)}`)
+          h('p', null, `b = ${newBias.toFixed(3)}`),
+          h('p', { className: 'mt-2' }, `New prediction: ${newPrediction.toFixed(2)}`)
         ),
         h('p', { className: 'mt-2 text-sm text-gray-700' }, 
           'Explanation: Gradient descent updates parameters in direction that reduces loss.'

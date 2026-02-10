@@ -6,6 +6,7 @@ function seededRandom(seed) {
 }
 
 export function KMedoids({ showSolution, seed }) {
+  const plotId = React.useId();
   let rng = () => { seed++; return seededRandom(seed); };
   
   const k = 2;
@@ -57,6 +58,52 @@ export function KMedoids({ showSolution, seed }) {
     }
   }
   
+  React.useEffect(() => {
+    if (showSolution) {
+      const colors = ['#3B82F6', '#EF4444'];
+      const traces = [];
+      
+      for (let i = 1; i <= k; i++) {
+        const clusterPts = assignments.filter(p => p.cluster === i);
+        traces.push({
+          x: clusterPts.map(p => p.x),
+          y: clusterPts.map(p => p.y),
+          mode: 'markers+text',
+          type: 'scatter',
+          name: `Cluster ${i}`,
+          marker: { size: 12, color: colors[i-1] },
+          text: clusterPts.map(p => `P${p.id}`),
+          textposition: 'top center'
+        });
+      }
+      
+      traces.push({
+        x: medoids.map(m => m.x),
+        y: medoids.map(m => m.y),
+        mode: 'markers',
+        type: 'scatter',
+        name: 'Old Medoids',
+        marker: { size: 18, color: 'gold', symbol: 'star', line: { width: 2, color: 'black' } }
+      });
+      
+      traces.push({
+        x: newMedoids.map(m => m.x),
+        y: newMedoids.map(m => m.y),
+        mode: 'markers',
+        type: 'scatter',
+        name: 'New Medoids',
+        marker: { size: 18, color: 'green', symbol: 'star', line: { width: 2, color: 'black' } }
+      });
+      
+      Plotly.newPlot(plotId, traces, {
+        title: 'K-Medoids Clustering',
+        xaxis: { title: 'X' },
+        yaxis: { title: 'Y' },
+        showlegend: true
+      }, { responsive: true });
+    }
+  }, [showSolution, plotId]);
+  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -78,6 +125,7 @@ export function KMedoids({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { id: plotId, className: 'mb-4', style: { width: '100%', height: '400px' } }),
       h('div', { className: 'space-y-4' },
         h('div', null,
           h('p', { className: 'font-semibold mb-2' }, 'Step 1: Assign to nearest medoid (Manhattan distance)'),
@@ -115,6 +163,7 @@ export function KMedoids({ showSolution, seed }) {
 }
 
 export function KMeans({ showSolution, seed }) {
+  const plotId = React.useId();
   let rng = () => { seed++; return seededRandom(seed); };
   
   const k = Math.floor(rng() * 2) + 2;
@@ -160,6 +209,52 @@ export function KMeans({ showSolution, seed }) {
     }
   }
   
+  React.useEffect(() => {
+    if (showSolution) {
+      const colors = ['#3B82F6', '#EF4444', '#10B981'];
+      const traces = [];
+      
+      for (let i = 1; i <= k; i++) {
+        const clusterPts = assignments.filter(p => p.cluster === i);
+        traces.push({
+          x: clusterPts.map(p => p.x),
+          y: clusterPts.map(p => p.y),
+          mode: 'markers+text',
+          type: 'scatter',
+          name: `Cluster ${i}`,
+          marker: { size: 12, color: colors[i-1] },
+          text: clusterPts.map(p => `P${p.id}`),
+          textposition: 'top center'
+        });
+      }
+      
+      traces.push({
+        x: centroids.map(c => c.x),
+        y: centroids.map(c => c.y),
+        mode: 'markers',
+        type: 'scatter',
+        name: 'Old Centroids',
+        marker: { size: 16, color: 'orange', symbol: 'x', line: { width: 3 } }
+      });
+      
+      traces.push({
+        x: newCentroids.map(c => c.x),
+        y: newCentroids.map(c => c.y),
+        mode: 'markers',
+        type: 'scatter',
+        name: 'New Centroids',
+        marker: { size: 16, color: 'purple', symbol: 'cross', line: { width: 3 } }
+      });
+      
+      Plotly.newPlot(plotId, traces, {
+        title: 'K-Means Clustering',
+        xaxis: { title: 'X' },
+        yaxis: { title: 'Y' },
+        showlegend: true
+      }, { responsive: true });
+    }
+  }, [showSolution, plotId]);
+  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -181,6 +276,7 @@ export function KMeans({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { id: plotId, className: 'mb-4', style: { width: '100%', height: '400px' } }),
       h('div', { className: 'space-y-4' },
         h('div', null,
           h('p', { className: 'font-semibold mb-2' }, 'Step 1: Assign to nearest centroid'),

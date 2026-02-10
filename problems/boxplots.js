@@ -6,6 +6,7 @@ function seededRandom(seed) {
 }
 
 export function DrawFromData({ showSolution, seed }) {
+  const plotId = React.useId();
   let rng = () => { seed++; return seededRandom(seed); };
   
   const values = [];
@@ -16,12 +17,29 @@ export function DrawFromData({ showSolution, seed }) {
   
   const q1Index = Math.floor(values.length / 4);
   const q3Index = Math.floor(3 * values.length / 4);
+  const medianIndex = Math.floor(values.length / 2);
   
   const q1 = values[q1Index];
   const q3 = values[q3Index];
+  const median = values[medianIndex];
   const iqr = q3 - q1;
   const lowerFence = q1 - 1.5 * iqr;
   const upperFence = q3 + 1.5 * iqr;
+  
+  React.useEffect(() => {
+    if (showSolution) {
+      Plotly.newPlot(plotId, [{
+        y: values,
+        type: 'box',
+        name: 'Data',
+        marker: { color: '#3B82F6' },
+        boxmean: true
+      }], {
+        title: 'Box Plot',
+        yaxis: { title: 'Values' }
+      }, { responsive: true });
+    }
+  }, [showSolution, plotId]);
   
   return h('div', { className: 'space-y-4' },
     h('div', null,
@@ -31,8 +49,10 @@ export function DrawFromData({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { id: plotId, className: 'mb-4', style: { width: '100%', height: '400px' } }),
       h('div', { className: 'space-y-2' },
         h('p', null, `Q1 (1st quartile, 25th percentile) = ${q1}`),
+        h('p', null, `Median = ${median}`),
         h('p', null, `Q3 (3rd quartile, 75th percentile) = ${q3}`),
         h('p', null, `IQR = Q3 - Q1 = ${q3} - ${q1} = ${iqr}`),
         h('p', null, `Lower fence = Q1 - 1.5 × IQR = ${q1} - 1.5 × ${iqr} = ${lowerFence.toFixed(1)}`),
@@ -41,6 +61,7 @@ export function DrawFromData({ showSolution, seed }) {
           h('div', { className: 'font-semibold mb-2' }, 'Summary:'),
           h('div', { className: 'space-y-1 text-sm' },
             h('div', null, `Q1 = ${q1}`),
+            h('div', null, `Median = ${median}`),
             h('div', null, `Q3 = ${q3}`),
             h('div', null, `IQR = ${iqr}`),
             h('div', null, `Lower fence = ${lowerFence.toFixed(1)}`),

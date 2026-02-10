@@ -6,6 +6,7 @@ function seededRandom(seed) {
 }
 
 export function PlotCurve({ showSolution, seed }) {
+  const plotId = React.useId();
   let rng = () => { seed++; return seededRandom(seed); };
   
   const points = [
@@ -24,6 +25,40 @@ export function PlotCurve({ showSolution, seed }) {
     (points[4].fpr - points[3].fpr) * (points[4].tpr + points[3].tpr) +
     (1 - points[4].fpr) * (1 + points[4].tpr)
   );
+  
+  React.useEffect(() => {
+    if (showSolution) {
+      const fprValues = [0, ...points.map(p => p.fpr), 1];
+      const tprValues = [0, ...points.map(p => p.tpr), 1];
+      
+      Plotly.newPlot(plotId, [
+        {
+          x: fprValues,
+          y: tprValues,
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: 'ROC Curve',
+          line: { color: '#3B82F6', width: 3 },
+          marker: { size: 8 },
+          fill: 'tozeroy',
+          fillcolor: 'rgba(59, 130, 246, 0.2)'
+        },
+        {
+          x: [0, 1],
+          y: [0, 1],
+          type: 'scatter',
+          mode: 'lines',
+          name: 'Random Classifier',
+          line: { color: '#EF4444', width: 2, dash: 'dash' }
+        }
+      ], {
+        title: 'ROC Curve',
+        xaxis: { title: 'False Positive Rate (FPR)', range: [0, 1] },
+        yaxis: { title: 'True Positive Rate (TPR)', range: [0, 1] },
+        showlegend: true
+      }, { responsive: true });
+    }
+  }, [showSolution, plotId]);
   
   return h('div', { className: 'space-y-4' },
     h('div', null,
@@ -52,19 +87,14 @@ export function PlotCurve({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { id: plotId, className: 'mb-4', style: { width: '100%', height: '400px' } }),
       h('div', { className: 'space-y-2' },
         h('p', { className: 'font-semibold' }, 'ROC Curve Points:'),
         h('p', null, 'Start: (0, 0), End: (1, 1)'),
         ...points.map((p, i) =>
           h('p', { key: i, className: 'ml-4' }, `Threshold ${p.threshold}: (${p.fpr}, ${p.tpr})`)
         ),
-        h('div', { className: 'bg-blue-50 p-4 rounded mt-4' },
-          h('p', { className: 'text-sm italic' }, 'ROC curve: Plot FPR (x-axis) vs TPR (y-axis)'),
-          h('p', { className: 'text-sm italic' }, 'Connect points: (0,0) → ' + points.map(p => `(${p.fpr},${p.tpr})`).join(' → ') + ' → (1,1)')
-        ),
-        h('p', { className: 'font-semibold mt-4' }, 'AUC Calculation:'),
-        h('p', null, 'Use trapezoidal rule to calculate area under curve'),
-        h('div', { className: 'bg-green-50 p-4 rounded mt-2' },
+        h('div', { className: 'bg-green-50 p-4 rounded mt-4' },
           h('p', { className: 'font-semibold' }, `AUC ≈ ${auc.toFixed(3)}`)
         ),
         h('p', { className: 'mt-2 text-sm text-gray-700' }, 
@@ -76,6 +106,7 @@ export function PlotCurve({ showSolution, seed }) {
 }
 
 export function ComputeAuc({ showSolution, seed }) {
+  const plotId = React.useId();
   let rng = () => { seed++; return seededRandom(seed); };
   
   const n = 8;
@@ -109,6 +140,36 @@ export function ComputeAuc({ showSolution, seed }) {
     auc += width * height;
   }
   
+  React.useEffect(() => {
+    if (showSolution) {
+      Plotly.newPlot(plotId, [
+        {
+          x: rocPoints.map(p => p.fpr),
+          y: rocPoints.map(p => p.tpr),
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: 'ROC Curve',
+          line: { color: '#3B82F6', width: 3 },
+          marker: { size: 8 },
+          fill: 'tozeroy',
+          fillcolor: 'rgba(59, 130, 246, 0.2)'
+        },
+        {
+          x: [0, 1],
+          y: [0, 1],
+          type: 'scatter',
+          mode: 'lines',
+          name: 'Random',
+          line: { color: '#EF4444', width: 2, dash: 'dash' }
+        }
+      ], {
+        title: `ROC Curve (AUC = ${auc.toFixed(3)})`,
+        xaxis: { title: 'False Positive Rate', range: [0, 1] },
+        yaxis: { title: 'True Positive Rate', range: [0, 1] }
+      }, { responsive: true });
+    }
+  }, [showSolution, plotId]);
+  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -134,6 +195,7 @@ export function ComputeAuc({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { id: plotId, className: 'mb-4', style: { width: '100%', height: '400px' } }),
       h('div', { className: 'space-y-2' },
         h('p', { className: 'font-semibold' }, 'Step 1: Sort by score (descending)'),
         h('p', null, `Total positives: ${totalPos}, Total negatives: ${totalNeg}`),

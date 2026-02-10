@@ -6,6 +6,8 @@ function seededRandom(seed) {
 }
 
 export function EqualWidth({ showSolution, seed }) {
+  const chartRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
   let rng = () => { seed++; return seededRandom(seed); };
   
   const values = [];
@@ -35,6 +37,51 @@ export function EqualWidth({ showSolution, seed }) {
     return bin ? bin.mean : v;
   });
   
+  React.useEffect(() => {
+    if (showSolution && canvasRef.current) {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+      
+      const ctx = canvasRef.current.getContext('2d');
+      chartRef.current = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: values.map((_, i) => `V${i+1}`),
+          datasets: [{
+            label: 'Original',
+            data: values,
+            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+            borderColor: '#3B82F6',
+            borderWidth: 1
+          }, {
+            label: 'Smoothed',
+            data: smoothed,
+            backgroundColor: 'rgba(239, 68, 68, 0.5)',
+            borderColor: '#EF4444',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Equal-Width Binning with Smoothing'
+            }
+          }
+        }
+      });
+    }
+    
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+    };
+  }, [showSolution]);
+  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -43,6 +90,9 @@ export function EqualWidth({ showSolution, seed }) {
     ),
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
+      h('div', { className: 'mb-4', style: { height: '300px' } },
+        h('canvas', { ref: canvasRef })
+      ),
       h('div', { className: 'space-y-2' },
         h('p', null, `Bin width = (${Math.max(...values)} - ${Math.min(...values)}) / ${numBins} = ${binWidth.toFixed(2)}`),
         h('div', { className: 'space-y-2 mt-2' },

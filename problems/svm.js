@@ -6,6 +6,94 @@ function seededRandom(seed) {
 }
 
 export function SketchLinearFunction({ showSolution, seed }) {
+  const chartRef = React.useRef(null);
+  const chartInstanceRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!showSolution || !chartRef.current) return;
+
+    const ctx = chartRef.current.getContext('2d');
+    
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
+
+    let rng = () => { seed++; return seededRandom(seed); };
+    
+    let w1 = Math.floor(rng() * 6) - 3;
+    let w2 = Math.floor(rng() * 6) - 3;
+    const b = Math.floor(rng() * 8) - 4;
+    
+    if (w1 === 0 && w2 === 0) {
+      w1 = 1;
+    }
+
+    // Generate line points
+    const linePoints = [];
+    if (w2 !== 0) {
+      for (let x1 = -5; x1 <= 5; x1 += 0.1) {
+        const x2 = -(w1 * x1 + b) / w2;
+        if (x2 >= -5 && x2 <= 5) {
+          linePoints.push({ x: x1, y: x2 });
+        }
+      }
+    }
+
+    chartInstanceRef.current = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'Decision Boundary',
+            data: linePoints,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgb(59, 130, 246)',
+            showLine: true,
+            pointRadius: 0,
+            borderWidth: 2,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1,
+        plugins: {
+          legend: { display: true },
+          title: {
+            display: true,
+            text: `Decision Boundary: ${w1}x₁ + ${w2}x₂ + ${b} = 0`
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'center',
+            title: { display: true, text: 'x₁' },
+            min: -5,
+            max: 5,
+            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+          },
+          y: {
+            type: 'linear',
+            position: 'center',
+            title: { display: true, text: 'x₂' },
+            min: -5,
+            max: 5,
+            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+          }
+        }
+      }
+    });
+
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
+    };
+  }, [showSolution, seed]);
+
   let rng = () => { seed++; return seededRandom(seed); };
   
   let w1 = Math.floor(rng() * 6) - 3;
@@ -19,16 +107,6 @@ export function SketchLinearFunction({ showSolution, seed }) {
   const x2AtX1_0 = w2 !== 0 ? -b / w2 : null;
   const x1AtX2_0 = w1 !== 0 ? -b / w1 : null;
   
-  const points = [];
-  if (w2 !== 0) {
-    for (let x1 = -5; x1 <= 5; x1++) {
-      const x2 = -(w1 * x1 + b) / w2;
-      if (x2 >= -5 && x2 <= 5) {
-        points.push({ x1, x2 });
-      }
-    }
-  }
-  
   return h('div', { className: 'space-y-4' },
     h('div', null,
       h('h3', { className: 'text-lg font-semibold mb-2' }, 'Problem'),
@@ -40,27 +118,15 @@ export function SketchLinearFunction({ showSolution, seed }) {
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
       h('div', { className: 'space-y-2' },
-        h('p', { className: 'font-semibold' }, 'Decision boundary: Set f(x₁, x₂) = 0'),
+        h('div', { className: 'bg-white p-4 rounded border' },
+          h('canvas', { ref: chartRef })
+        ),
+        h('p', { className: 'font-semibold mt-3' }, 'Decision boundary: Set f(x₁, x₂) = 0'),
         h('p', null, `${w1}x₁ + ${w2}x₂ + ${b} = 0`),
-        w2 !== 0 && h('p', null, `x₂ = ${-w1}/${w2}x₁ + ${-b}/${w2}`),
         w2 !== 0 && h('p', null, `x₂ = ${(-w1/w2).toFixed(2)}x₁ + ${(-b/w2).toFixed(2)}`),
         h('p', { className: 'font-semibold mt-3' }, 'Key points:'),
         x1AtX2_0 !== null && h('p', { className: 'ml-4' }, `x₁-intercept (x₂=0): x₁ = ${x1AtX2_0.toFixed(2)}`),
         x2AtX1_0 !== null && h('p', { className: 'ml-4' }, `x₂-intercept (x₁=0): x₂ = ${x2AtX1_0.toFixed(2)}`),
-        h('div', { className: 'bg-blue-50 p-4 rounded mt-4' },
-          h('p', { className: 'font-semibold mb-2' }, 'Sketch:'),
-          h('p', { className: 'text-sm mb-2' }, 'Draw a coordinate system with x₁ (horizontal) and x₂ (vertical)'),
-          h('p', { className: 'text-sm mb-2' }, `Plot the line passing through the intercepts`),
-          h('p', { className: 'text-sm' }, `The line divides the plane: f > 0 on one side, f < 0 on the other`)
-        ),
-        h('div', { className: 'bg-green-50 p-4 rounded mt-4' },
-          h('p', { className: 'font-semibold mb-2' }, 'Sample points on boundary:'),
-          h('div', { className: 'font-mono text-sm space-y-1' },
-            ...points.slice(0, 3).map((p, i) =>
-              h('p', { key: i }, `(${p.x1}, ${p.x2.toFixed(2)})`)
-            )
-          )
-        ),
         h('p', { className: 'mt-2 text-sm text-gray-700' }, 
           'Explanation: Linear decision boundary is a line in 2D. Points on the line satisfy f=0.'
         )
@@ -278,6 +344,98 @@ export function FormulateSoftMargin({ showSolution, seed }) {
 }
 
 export function DecisionBoundary({ showSolution, seed }) {
+  const chartRef = React.useRef(null);
+  const chartInstanceRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!showSolution || !chartRef.current) return;
+
+    const ctx = chartRef.current.getContext('2d');
+    
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
+
+    const w1 = 1;
+    const w2 = -0.5;
+    const b = -1;
+
+    // Generate line points
+    const linePoints = [];
+    for (let x1 = 0; x1 <= 6; x1 += 0.1) {
+      const x2 = -(w1 * x1 + b) / w2;
+      if (x2 >= 0 && x2 <= 4) {
+        linePoints.push({ x: x1, y: x2 });
+      }
+    }
+
+    chartInstanceRef.current = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'Class +1',
+            data: [{ x: 1, y: 2 }, { x: 2, y: 3 }],
+            backgroundColor: 'rgb(34, 197, 94)',
+            pointRadius: 8,
+            pointStyle: 'circle'
+          },
+          {
+            label: 'Class -1',
+            data: [{ x: 4, y: 1 }, { x: 5, y: 2 }],
+            backgroundColor: 'rgb(239, 68, 68)',
+            pointRadius: 8,
+            pointStyle: 'circle'
+          },
+          {
+            label: 'Decision Boundary',
+            data: linePoints,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgb(59, 130, 246)',
+            showLine: true,
+            pointRadius: 0,
+            borderWidth: 2,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.5,
+        plugins: {
+          legend: { display: true },
+          title: {
+            display: true,
+            text: 'SVM Decision Boundary'
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            title: { display: true, text: 'x₁' },
+            min: 0,
+            max: 6,
+            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+          },
+          y: {
+            type: 'linear',
+            title: { display: true, text: 'x₂' },
+            min: 0,
+            max: 4,
+            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+          }
+        }
+      }
+    });
+
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
+    };
+  }, [showSolution]);
+
   let rng = () => { seed++; return seededRandom(seed); };
   
   const points = [
@@ -319,7 +477,10 @@ export function DecisionBoundary({ showSolution, seed }) {
     showSolution && h('div', { className: 'border-t pt-4' },
       h('h3', { className: 'text-lg font-semibold mb-2 text-green-700' }, 'Solution'),
       h('div', { className: 'space-y-2' },
-        h('p', { className: 'font-semibold' }, 'One possible decision boundary:'),
+        h('div', { className: 'bg-white p-4 rounded border' },
+          h('canvas', { ref: chartRef })
+        ),
+        h('p', { className: 'font-semibold mt-3' }, 'One possible decision boundary:'),
         h('div', { className: 'bg-blue-50 p-4 rounded' },
           h('p', { className: 'font-mono text-lg' }, `f(x₁, x₂) = ${w1}x₁ + ${w2}x₂ + ${b}`),
           h('p', { className: 'mt-2 text-sm' }, 'Decision boundary: f(x₁, x₂) = 0'),
